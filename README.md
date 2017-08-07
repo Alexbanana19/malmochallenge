@@ -4,9 +4,9 @@ Minghan Li, Fan Mo, Ancong Wu
 ----
 ### Abstract
 The difficulty of this challenge comes from the uncertainty of the collaborator’s behavior and the conditions of success(requires two agents to corner the pig rather than to move directly to the pig's location). Under the context of this task, we hope the agent can learn strategies like flanking and ambushing as well as taking advantage of the behavioral pattern of the collaborator to catch the pig. Therefore, **temporal abstraction** and **inference** are needed for this specific task. We make three main contributions in this work:
-1. Combine Double Deep Q-Network [[3]](#reference) with the option framework [[2]](#reference) to produce the Hierarchical Double Deep Q-Network, or **HiDDeN**;
+1. Combine Double Deep Q-Network [[6]](#reference) with feudal reinforcement learning [[2]](#reference) to produce the Hierarchical Double Deep Q-Network, or **HiDDeN**;
 1. Add **particle filter** [[4]](#reference) module to make inference to the collaborator’s behavior;
-1. Develop a technique called “**Goal Swapping**” to speed up the learning process.
+1. Develop a technique called “**Goal Swapping**” to speed up the learning process (which turns out to be the naive version of True On-line TD(lambda)).
 
 Because of the our limited resources, we have to split up the learning process into data collecting on CPUs and training on GPUs. As we know the model will be likely to overfit the dataset in this way, especially for the model like neural network. However, the result does show that with HiDDeN, the agent is able to learn some high level strategies and emerges collaborative patterns.
 
