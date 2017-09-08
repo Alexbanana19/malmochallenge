@@ -8,7 +8,7 @@ The difficulty of this challenge comes from the uncertainty of the collaborator�
 1. Add **particle filter** [[4]](#reference) module to make inference to the collaborator’s behavior;
 1. Develop a technique called “**Goal Swapping**” to speed up the learning process (which turns out to be the naive version of True On-line TD(lambda)).
 
-Because of the our limited resources, we have to split up the learning process into data collecting on CPUs and training on GPUs. As we know the model will be likely to overfit the dataset in this way, especially for the model like neural network. However, the result does show that with HiDDeN, the agent is able to learn some high level strategies and emerges collaborative patterns.
+Because of the our limited resources, we have to split up the learning process into data collecting on CPUs and training on GPUs. As we know the model will be likely to overfit the dataset in this way, especially for the model like neural network. More importantly, splitting the two process also means that we are doing off-line learning and off-policy learning, which is the main reason for the poor performance(learning updates does not match the on policy distribution).However, the result does show that with HiDDeN, the agent is able to learn some high level strategies and emerges collaborative patterns.
 
 ### Introduction
 The task of this Pig Chase Challenge basically requires us to design a agent to cooperate with another one to catch a pig in a fence, which is worth 25 points. The agent can also choose to go to the lapis blocks to get 5 points and end the game early. The agent will be tested with multiple kinds of cooperators and see its overall performance. The link of this challenge is [here](https://github.com/Microsoft/malmo-challenge/blob/master/ai_challenge/pig_chase/README.md).
@@ -20,12 +20,12 @@ The task of this Pig Chase Challenge basically requires us to design a agent to 
 ![Model structure](doc/chart-cut.png)
 >Figure 2: The Critic contains a Deep Q-Network[1], outputs Q-values for each goal given the current state. The Meta is the central controller of the hierarchical model, receives Q-values from the critic and specifies the goal. The Actor is an AStar agent, which moves greedily to the current goal. The particle filter module is used to encode the behavior of our collaborator.
 
-The temporal abstractions (high level strategies) are usually very difficult to define, even to be learned [[5]](#reference). Thus, we use the concept of sub goals [[6]](#reference), which are specific coordinates in this task. Therefore the Q-value function we use is Q(s, g) instead of Q(s, a). It avoids training the agent using primitive actions and  speeds up the data collecting process.
+The temporal abstractions (high level strategies) are usually very difficult to define, even to be learned [[5]](#reference). Thus, we use the concept of sub goals [[6]](#reference), which are specific coordinates in this task. Therefore the Q-value function we use is Q(s, g) instead of Q(s, a). It avoids training the agent using primitive actions and speeds up the data collecting process.
 
 **Critic Module:**
 The Critic uses a fully connected neural network with 4 hidden layers, each layer has 1024 neurons with a rectifier nonlinearity. It takes modified state feature vector and the goal as input, i.e. Q(s, g). To stabilize the training process and break the correlation between the data, we also use experience replay and target network [[1]](#reference) in our model.
 
-Q-learning is known to have the overestimation problem, especially in the non-stationary and stochastic environment, which can be addressed by Double Q learning [[7]](#reference). In order to incorporate Double Q learning into DQN, we use the method from [[3]](#reference), where they proposed using the target network to estimate the current network’s Q value. Now we have a new update rule:
+Q-learning is known to have the overestimation problem, especially in the non-stationary and stochastic environment, which can be addressed by Double Q learning [[7]](#reference). In order to incorporate Double Q learning into DQN, we use the solution from [[3]](#reference), where they proposed using the target network to estimate the current network’s Q value. Now we have a new update rule:
 
 ![formula](doc/formula-cut.png)
 
@@ -50,6 +50,9 @@ Since we didn’t deploy Project Malmo on our GPU machine, the whole learning pr
 ### Evaluation Results (compare with the baseline)
 ![VS focused](doc/results.png)
 >Figure 3: The results of HiDDeN vs Focused and Focused vs Focused. The Red Line represents the Fouced agent and the Blue one represents HiDDeN agent. We can see our method indeed outperforms the astar heuristic.
+
+### Discussion
+To solve the problem better, especially choosing when to exit and when to corner the pig, one would like to use the Horde architecture and compare the value function of the two. For the off-policy learning issue, we can try to use GTD or ETD method to see whether we can better the performance.
 
 ---
 ### Reference
